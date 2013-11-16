@@ -1,5 +1,6 @@
 GoRTP
 =====
+[![Build Status](https://drone.io/github.com/danielvargas/gortp/status.png)](https://drone.io/github.com/danielvargas/gortp/latest)
 
 ## RTP/RTCP stack for Go
 
