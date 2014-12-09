@@ -168,9 +168,9 @@ func NewSession(tpw TransportWrite, tpr TransportRecv) *Session {
 //   remote - the RTP address of the remote peer. The RTP data port number must be even.
 //
 func (rs *Session) AddRemote(remote *Address) (index uint32, err error) {
-	if (remote.DataPort & 0x1) == 0x1 {
-		return 0, Error("RTP data port number is not an even number.")
-	}
+	//	if (remote.DataPort & 0x1) == 0x1 {
+	//		return 0, Error("RTP data port number is not an even number.")
+	//	}
 	rs.remotes[rs.remoteIndex] = remote
 	index = rs.remoteIndex
 	rs.remoteIndex++

@@ -95,7 +95,7 @@ type PayloadFormat struct {
 }
 type payloadMap map[int]*PayloadFormat
 
-var PayloadFormatMap = make(payloadMap, 25)
+var PayloadFormatMap = make(payloadMap, 128)
 
 func init() {
 	PayloadFormatMap[0] = &PayloadFormat{0, Audio, 8000, 1, "PCMU"}
@@ -137,4 +137,5 @@ func init() {
 	// 72-76     Reserved for RTCP conflict avoidance
 	// 77-95     Unassigned      ?
 	// 96-127    dynamic         ?
+	PayloadFormatMap[96] = &PayloadFormat{96, Video, 90000, 0, "H264"}
 }
