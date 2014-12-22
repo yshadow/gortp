@@ -183,7 +183,7 @@ func (tp *TransportUDP) readCtrlPacket() {
 
 	tp.ctrlRecvStop = false
 	for {
-		tp.dataConn.SetReadDeadline(time.Now().Add(100 * time.Millisecond)) // 100 ms, re-test and remove after Go issue 2116 is solved
+		tp.ctrlConn.SetReadDeadline(time.Now().Add(100 * time.Millisecond)) // 100 ms, re-test and remove after Go issue 2116 is solved
 		n, addr, err := tp.ctrlConn.ReadFromUDP(buf[0:])
 		if tp.ctrlRecvStop {
 			break
