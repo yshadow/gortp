@@ -502,7 +502,7 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 		return true
 	}
 
-	if pktType := rp.Type(0); pktType != RtcpSR && pktType != RtcpRR {
+	if pktType := rp.Type(0); pktType != RtcpSR && pktType != RtcpRR && pktType != RtcpPsfb {
 		rp.FreePacket()
 		return false
 	}
@@ -639,7 +639,11 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 			// Advance to the next packet in the compound.
 			offset += pktLen
 		case RtcpPsfb:
-			// Advance to the next packet in the compound.
+			if offset+pktLen > len(rp.Buffer()) {
+				return false
+			}
+			str, _, _ := rs.rtcpSenderCheck(rp, offset)
+			ctrlEvArr = append(ctrlEvArr, newCrtlEvent(RtcpPsfb, str.Ssrc(), 0))
 			offset += pktLen
 		case RtcpXr:
 			// Advance to the next packet in the compound.
