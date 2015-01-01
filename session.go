@@ -23,6 +23,7 @@ package rtp
  */
 
 import (
+	"log"
 	"net"
 	"sync"
 	"time"
@@ -502,7 +503,7 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 		return true
 	}
 
-	if pktType := rp.Type(0); pktType != RtcpSR && pktType != RtcpRR && pktType != RtcpPsfb {
+	if pktType := rp.Type(0); pktType != RtcpSR && pktType != RtcpRR && pktType != RtcpPsfb && pktType != RtcpRtpfb {
 		rp.FreePacket()
 		return false
 	}
@@ -636,14 +637,26 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 			// Advance to the next packet in the compound.
 			offset += pktLen
 		case RtcpRtpfb:
-			// Advance to the next packet in the compound.
+			if offset+pktLen > len(rp.Buffer()) {
+				return false
+			}
+			str, _, _ := rs.rtcpSenderCheck(rp, offset)
+			ctrlEv := newCrtlEvent(RtcpRtpfb, str.Ssrc(), 0)
+			fbOffset := offset + rtcpHeaderLength + rtcpSsrcLength + rtcpSsrcLength
+			log.Println("PSFB: ", rp.buffer, fbOffset)
+			ctrlEv.Reason = string(rp.buffer[fbOffset : fbOffset+4])
+			ctrlEvArr = append(ctrlEvArr, ctrlEv)
 			offset += pktLen
 		case RtcpPsfb:
 			if offset+pktLen > len(rp.Buffer()) {
 				return false
 			}
 			str, _, _ := rs.rtcpSenderCheck(rp, offset)
-			ctrlEvArr = append(ctrlEvArr, newCrtlEvent(RtcpPsfb, str.Ssrc(), 0))
+			ctrlEv := newCrtlEvent(RtcpPsfb, str.Ssrc(), 0)
+			fbOffset := offset + rtcpHeaderLength + rtcpSsrcLength + rtcpSsrcLength
+			log.Println("PSFB: ", rp.buffer, fbOffset)
+			ctrlEv.Reason = string(rp.buffer[fbOffset : fbOffset+8])
+			ctrlEvArr = append(ctrlEvArr, ctrlEv)
 			offset += pktLen
 		case RtcpXr:
 			// Advance to the next packet in the compound.
