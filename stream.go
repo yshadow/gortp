@@ -301,7 +301,7 @@ func (so *SsrcStream) fillSenderInfo(info senderInfo) {
 	sec, frac := toNtpStamp(tm)
 	info.setNtpTimeStamp(sec, frac)
 
-	tm1 := uint32(tm-so.initialTime) / 1e6                               // time since session creation in ms
+	tm1 := uint32((tm - so.initialTime) / 1e6)                           // time since session creation in ms
 	tm1 *= uint32(PayloadFormatMap[int(so.payloadType)].ClockRate / 1e3) // compute number of samples
 	tm1 += so.initialStamp
 	info.setRtpTimeStamp(tm1)
