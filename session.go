@@ -23,7 +23,6 @@ package rtp
  */
 
 import (
-	"log"
 	"net"
 	"sync"
 	"time"
@@ -643,7 +642,6 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 			str, _, _ := rs.rtcpSenderCheck(rp, offset)
 			ctrlEv := newCrtlEvent(RtcpRtpfb, str.Ssrc(), 0)
 			fbOffset := offset + rtcpHeaderLength + rtcpSsrcLength + rtcpSsrcLength
-			log.Println("PSFB: ", rp.buffer, fbOffset)
 			ctrlEv.Reason = string(rp.buffer[fbOffset : fbOffset+4])
 			ctrlEvArr = append(ctrlEvArr, ctrlEv)
 			offset += pktLen
@@ -654,7 +652,6 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 			str, _, _ := rs.rtcpSenderCheck(rp, offset)
 			ctrlEv := newCrtlEvent(RtcpPsfb, str.Ssrc(), 0)
 			fbOffset := offset + rtcpHeaderLength + rtcpSsrcLength + rtcpSsrcLength
-			log.Println("PSFB: ", rp.buffer, fbOffset)
 			ctrlEv.Reason = string(rp.buffer[fbOffset : fbOffset+8])
 			ctrlEvArr = append(ctrlEvArr, ctrlEv)
 			offset += pktLen
