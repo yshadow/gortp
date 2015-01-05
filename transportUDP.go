@@ -130,7 +130,10 @@ func (tp *TransportUDP) WriteDataTo(rp *DataPacket, addr *Address) (n int, err e
 
 // WriteRtcpTo implements the rtp.TransportWrite WriteRtcpTo method.
 func (tp *TransportUDP) WriteCtrlTo(rp *CtrlPacket, addr *Address) (n int, err error) {
-	return tp.ctrlConn.WriteToUDP(rp.buffer[0:rp.inUse], &net.UDPAddr{addr.IpAddr, addr.CtrlPort, ""})
+	//return tp.ctrlConn.WriteToUDP(rp.buffer[0:rp.inUse], &net.UDPAddr{addr.IpAddr, addr.CtrlPort, ""})
+	// TODO: big hack - send back RTCP packets (SR) in RTP data port, since hole punching is only
+	// done on the RTP data port...
+	return tp.dataConn.WriteToUDP(rp.buffer[0:rp.inUse], &net.UDPAddr{addr.IpAddr, addr.DataPort, ""})
 }
 
 // CloseWrite implements the rtp.TransportWrite CloseWrite method.
