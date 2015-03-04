@@ -22,6 +22,9 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	"code.google.com/p/go.net/internal/iana"
+	"code.google.com/p/go.net/ipv4"
 )
 
 // RtpTransportUDP implements the interfaces RtpTransportRecv and RtpTransportWrite for RTP transports.
@@ -56,6 +59,12 @@ func (tp *TransportUDP) ListenOnTransports() (err error) {
 	if err != nil {
 		return
 	}
+
+	p := ipv4.NewConn(tp.dataConn)
+	if err = p.SetTOS(iana.DiffServAF41); err != nil {
+		fmt.Printf("TransportUDP: failed to set TOS marking on dataConn\n")
+	}
+
 	tp.ctrlConn, err = net.ListenUDP(tp.localAddrRtcp.Network(), tp.localAddrRtcp)
 	if err != nil {
 		tp.dataConn.Close()
