@@ -642,7 +642,7 @@ func (rs *Session) OnRecvCtrl(rp *CtrlPacket) bool {
 			str, _, _ := rs.rtcpSenderCheck(rp, offset)
 			ctrlEv := newCrtlEvent(RtcpRtpfb, str.Ssrc(), 0)
 			fbOffset := offset + rtcpHeaderLength + rtcpSsrcLength + rtcpSsrcLength
-			ctrlEv.Reason = string(rp.buffer[fbOffset : fbOffset+4])
+			ctrlEv.Reason = string(rp.buffer[fbOffset:rp.InUse()])
 			ctrlEvArr = append(ctrlEvArr, ctrlEv)
 			offset += pktLen
 		case RtcpPsfb:
