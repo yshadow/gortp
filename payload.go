@@ -138,4 +138,8 @@ func init() {
 	// 77-95     Unassigned      ?
 	// 96-127    dynamic         ?
 	PayloadFormatMap[96] = &PayloadFormat{96, Video, 90000, 0, "H264"}
+	PayloadFormatMap[97] = &PayloadFormat{97, Audio, 90000, 0, "DYN1"}
+	PayloadFormatMap[98] = &PayloadFormat{98, Audio, 90000, 0, "DYN2"}
+	PayloadFormatMap[99] = &PayloadFormat{99, Audio, 90000, 0, "DYN3"}
+	PayloadFormatMap[100] = &PayloadFormat{100, Audio, 90000, 0, "DYN4"}
 }
