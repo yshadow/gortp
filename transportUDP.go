@@ -23,7 +23,6 @@ import (
 	"net"
 	"time"
 
-	"golang.org/x/net/internal/iana"
 	"golang.org/x/net/ipv4"
 )
 
