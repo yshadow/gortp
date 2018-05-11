@@ -160,12 +160,13 @@ func (tp *TransportUDP) CloseWrite() {
 // if callback is not nil
 
 func (tp *TransportUDP) readDataPacket() {
-	var buf [defaultBufferSize]byte
+	var buf [DefaultBufferSize]byte
 
 	tp.dataRecvStop = false
 	for {
 		tp.dataConn.SetReadDeadline(time.Now().Add(20 * time.Millisecond)) // 20 ms, re-test and remove after Go issue 2116 is solved
 		n, addr, err := tp.dataConn.ReadFromUDP(buf[0:])
+
 		if tp.dataRecvStop {
 			break
 		}
@@ -191,7 +192,7 @@ func (tp *TransportUDP) readDataPacket() {
 }
 
 func (tp *TransportUDP) readCtrlPacket() {
-	var buf [defaultBufferSize]byte
+	var buf [DefaultBufferSize]byte
 
 	tp.ctrlRecvStop = false
 	for {

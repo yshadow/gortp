@@ -25,7 +25,8 @@ import (
 )
 
 const (
-	defaultBufferSize  = 1200
+	// DefaultBufferSize conforms MTU size
+	DefaultBufferSize  = 2000
 	freeListLengthRtp  = 10
 	freeListLengthRtcp = 5
 	rtpHeaderLength    = 12
@@ -93,7 +94,7 @@ const (
 
 // nullArray is what it's names says: a long array filled with zeros.
 // used to clear (fill with zeros) arrays/slices inside a buffer by copying.
-var nullArray [1200]byte
+var nullArray [DefaultBufferSize]byte
 
 type RawPacket struct {
 	inUse    int
@@ -136,12 +137,20 @@ func newDataPacket() (rp *DataPacket) {
 	case rp = <-freeListRtp: // Got one; nothing more to do.
 	default:
 		rp = new(DataPacket) // None free, so allocate a new one.
-		rp.buffer = make([]byte, defaultBufferSize)
+		rp.buffer = make([]byte, DefaultBufferSize)
 	}
 	rp.buffer[0] = version2Bit // RTP: V = 2, P, X, CC = 0
 	rp.inUse = rtpHeaderLength
 	rp.isFree = false
 	return
+}
+
+// NewDataPacket - enable us to create DataPacket for tests
+func NewDataPacket(source []byte) *DataPacket {
+	p := newDataPacket()
+	copy(p.buffer, source)
+	p.inUse = len(source)
+	return p
 }
 
 // FreePacket returns the packet to the free RTP list.
@@ -201,6 +210,7 @@ func (rp *DataPacket) SetCsrcList(csrc []uint32) {
 
 	rp.buffer[0] &^= ccMask // clear old length
 	rp.buffer[0] |= byte(len(csrc) & ccMask)
+	fmt.Printf("csrclist: %d\n", newInUse)
 	rp.inUse = newInUse
 }
 
@@ -232,6 +242,7 @@ func (rp *DataPacket) SetExtension(ext []byte) {
 	// is the payload.
 	offsetExt := int(rp.CsrcCount()*4 + rtpHeaderLength) // offset to Extension
 	offsetOld := int(rp.CsrcCount()*4 + rtpHeaderLength) // offset to old content
+
 	if rp.ExtensionBit() {
 		offsetOld += rp.ExtensionLength()
 	}
@@ -388,9 +399,10 @@ func (rp *DataPacket) Payload() []byte {
 // in SetPadding. SetPayload performs padding only if the payload length is greate zero. A payload of
 // zero length removes an existing payload including a possible padding
 func (rp *DataPacket) SetPayload(payload []byte) {
-
+	fmt.Println("SetPayload")
 	payOffset := int(rp.CsrcCount()*4+rtpHeaderLength) + rp.ExtensionLength()
 	payloadLenOld := rp.inUse - payOffset
+	fmt.Printf("setpayload-1: %d\n", rp.inUse)
 
 	pad := 0
 	padOffset := 0
@@ -400,7 +412,9 @@ func (rp *DataPacket) SetPayload(payload []byte) {
 			payloadLenOld += int(rp.buffer[rp.inUse])
 		}
 		// Reduce length of inUse by length of old content, thus remove old content
+		fmt.Printf("setpayload0: %d\n", rp.inUse)
 		rp.inUse -= payloadLenOld
+		fmt.Printf("setpayload: %d\n", rp.inUse)
 		// Compute new padding length
 		pad = (len(payload) + rp.inUse) % rp.padTo
 		if pad == 0 {
@@ -409,12 +423,13 @@ func (rp *DataPacket) SetPayload(payload []byte) {
 	} else {
 		// Reduce length of inUse by length of old content, thus remove old content
 		rp.inUse -= payloadLenOld
+		fmt.Printf("setpayload2: %d\n", rp.inUse)
 	}
 	if (payOffset + len(payload) + pad) > cap(rp.buffer) {
 		return
 	}
 	rp.inUse += copy(rp.buffer[payOffset:], payload)
-
+	fmt.Printf("setpayload3: %d\n", rp.inUse)
 	if rp.Padding() && len(payload) > 0 {
 		padOffset = payOffset + len(payload)
 		for i := 0; i < pad-1; i++ {
@@ -423,6 +438,7 @@ func (rp *DataPacket) SetPayload(payload []byte) {
 		}
 		rp.buffer[padOffset] = byte(pad)
 		rp.inUse += pad
+		fmt.Printf("setpayload4: %d\n", rp.inUse)
 	}
 	return
 }
@@ -485,7 +501,7 @@ func newCtrlPacket() (rp *CtrlPacket, offset int) {
 	case rp = <-freeListRtcp: // Got one; nothing more to do.
 	default:
 		rp = new(CtrlPacket) // None free, so allocate a new one.
-		rp.buffer = make([]byte, defaultBufferSize)
+		rp.buffer = make([]byte, DefaultBufferSize)
 	}
 	rp.buffer[0] = version2Bit // RTCP: V = 2, P, RC = 0
 	rp.inUse = rtcpHeaderLength

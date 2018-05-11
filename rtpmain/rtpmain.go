@@ -24,7 +24,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/danielvargas/gortp"
+	"github.com/evie/gortp"
 )
 
 var localPort = 5220

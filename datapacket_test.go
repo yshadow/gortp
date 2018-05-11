@@ -50,17 +50,17 @@ func headerCheck(rp *DataPacket, t *testing.T) (result bool) {
 
 	ssrc := rp.Ssrc()
 	if ssrc != 0x01020304 {
-		t.Error(fmt.Sprintf("SSRC check failed. Expected: 0x1020304, got: %x\n", ssrc))
+		t.Errorf("SSRC check failed. Expected: 0x1020304, got: %x\n", ssrc)
 		return
 	}
 	seq := rp.Sequence()
 	if seq != 0x4711 {
-		t.Error(fmt.Sprintf("Sequence check failed. Expected: 0x4711, got: %x\n", seq))
+		t.Errorf("Sequence check failed. Expected: 0x4711, got: %x\n", seq)
 		return
 	}
 	ts := rp.Timestamp()
 	if ts != 0xF0E0D0C0 {
-		t.Error(fmt.Sprintf("Timestamp check failed. Expected: 0xF0E0D0C0, got: %x\n", ts))
+		t.Errorf("Timestamp check failed. Expected: 0xF0E0D0C0, got: %x\n", ts)
 		return
 	}
 
@@ -77,26 +77,26 @@ func csrcTest(rp *DataPacket, t *testing.T, csrc []uint32, run int) (result bool
 	}
 	ssrcLen := rp.CsrcCount()
 	if int(ssrcLen) != len(csrc) {
-		t.Error(fmt.Sprintf("CSRC-%d length check failed. Expected: %d, got: %d\n", run, len(csrc), ssrcLen))
+		t.Errorf("CSRC-%d length check failed. Expected: %d, got: %d\n", run, len(csrc), ssrcLen)
 		return
 	}
 	csrcTmp := rp.CsrcList()
 	for i, v := range csrcTmp {
 		if v != csrc[i] {
-			t.Error(fmt.Sprintf("CSRC-%d check failed at %i. Expected: %x, got: %x\n", run, i, csrc[i], csrcTmp[i]))
+			t.Errorf("CSRC-%d check failed at %d. Expected: %x, got: %x\n", run, i, csrc[i], csrcTmp[i])
 			return
 		}
 	}
 	use := rp.InUse()
 	expected := rtpHeaderLength + len(payload) + len(csrc)*4 + rp.ExtensionLength()
 	if use != expected {
-		t.Error(fmt.Sprintf("Payload-CSRC-%d length check failed. Expected: %d, got: %d\n", run, expected, use))
+		t.Errorf("Payload-CSRC-%d length check failed. Expected: %d, got: %d\n", run, expected, use)
 		return
 	}
 	pay := rp.Payload()
 	for i, v := range payload {
 		if v != pay[i] {
-			t.Error(fmt.Sprintf("Payload-CSRC-%d check failed at %i. Expected: %x, got: %x\n", run, i, payload[i], pay[i]))
+			t.Errorf("Payload-CSRC-%d check failed at %d. Expected: %x, got: %x\n", run, i, payload[i], pay[i])
 			return
 		}
 	}
@@ -116,26 +116,26 @@ func extTest(rp *DataPacket, t *testing.T, ext []byte, run int) (result bool) {
 	}
 	extLen := rp.ExtensionLength()
 	if extLen != len(ext) {
-		t.Error(fmt.Sprintf("EXT-%d length check failed. Expected: %d, got: %d\n", run, len(ext), extLen))
+		t.Errorf("EXT-%d length check failed. Expected: %d, got: %d\n", run, len(ext), extLen)
 		return
 	}
 	extTmp := rp.Extension()
 	for i, v := range extTmp {
 		if v != ext[i] {
-			t.Error(fmt.Sprintf("EXT-%d check failed at %i. Expected: %x, got: %x\n", run, i, ext[i], extTmp[i]))
+			t.Errorf("EXT-%d check failed at %d. Expected: %x, got: %x\n", run, i, ext[i], extTmp[i])
 			return
 		}
 	}
 	use := rp.InUse()
 	expected := rtpHeaderLength + len(payload) + int(rp.CsrcCount()*4) + len(ext)
 	if use != expected {
-		t.Error(fmt.Sprintf("Payload-EXT-%d length check failed. Expected: %d, got: %d\n", run, expected, use))
+		t.Errorf("Payload-EXT-%d length check failed. Expected: %d, got: %d\n", run, expected, use)
 		return
 	}
 	pay := rp.Payload()
 	for i, v := range payload {
 		if v != pay[i] {
-			t.Error(fmt.Sprintf("Payload-EXT-%d check failed at %i. Expected: %x, got: %x\n", run, i, payload[i], pay[i]))
+			t.Errorf("Payload-EXT-%d check failed at %d. Expected: %x, got: %x\n", run, i, payload[i], pay[i])
 			return
 		}
 	}
@@ -180,7 +180,7 @@ func rtpPacket(t *testing.T) {
 	}
 	use := rp.InUse()
 	if use != rtpHeaderLength {
-		t.Error(fmt.Sprintf("RTP header length check failed. Expected: 12, got: %d\n", use))
+		t.Errorf("RTP header length check failed. Expected: 12, got: %d\n", use)
 		return
 	}
 
@@ -192,45 +192,45 @@ func rtpPacket(t *testing.T) {
 	}
 	use = rp.InUse()
 	if use != rtpHeaderLength+len(payload) {
-		t.Error(fmt.Sprintf("Packet length check failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use))
+		t.Errorf("Packet length check failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use)
 		return
 	}
 	pay := rp.Payload()
 	if len(pay) != len(payload) {
-		t.Error(fmt.Sprintf("Payload length check failed. Expected: %d, got: %d\n", len(payload), len(pay)))
+		t.Errorf("Payload length check failed. Expected: %d, got: %d\n", len(payload), len(pay))
 		return
 	}
 	for i, v := range payload {
 		if v != pay[i] {
-			t.Error(fmt.Sprintf("Payload check failed at %i. Expected: %x, got: %x\n", i, payload[i], pay[i]))
+			t.Errorf("Payload check failed at %d. Expected: %x, got: %x\n", i, payload[i], pay[i])
 			return
 		}
 	}
 	buf := rp.Buffer()
 	for i, v := range buf[0:use] {
 		if v != initialPacket[i] {
-			t.Error(fmt.Sprintf("Basic header buffer check failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i]))
+			t.Errorf("Basic header buffer check failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i])
 			return
 		}
 	}
 	rp.SetMarker(true)
 	if buf[markerPtOffset] != 0x83 {
-		t.Error(fmt.Sprintf("Marker/PT check 1 failed. Expected: 0x83, got: %x\n", buf[markerPtOffset]))
+		t.Errorf("Marker/PT check 1 failed. Expected: 0x83, got: %x\n", buf[markerPtOffset])
 		return
 	}
 	pt := rp.PayloadType()
 	if pt != 3 {
-		t.Error(fmt.Sprintf("PT-after-Marker check 1 failed. Expected: 3, got: %x\n", pt))
+		t.Errorf("PT-after-Marker check 1 failed. Expected: 3, got: %x\n", pt)
 		return
 	}
 	rp.SetMarker(false)
 	if buf[markerPtOffset] != 3 {
-		t.Error(fmt.Sprintf("Marker/PT check 2 failed. Expected: 3, got: %x\n", buf[markerPtOffset]))
+		t.Errorf("Marker/PT check 2 failed. Expected: 3, got: %x\n", buf[markerPtOffset])
 		return
 	}
 	pt = rp.PayloadType()
 	if pt != 3 {
-		t.Error(fmt.Sprintf("PT-after-Marker check 2 failed. Expected: 3, got: %x\n", pt))
+		t.Errorf("PT-after-Marker check 2 failed. Expected: 3, got: %x\n", pt)
 		return
 	}
 
@@ -244,17 +244,17 @@ func rtpPacket(t *testing.T) {
 	rp.SetPayload(payload)
 	use = rp.InUse()
 	if use != (rtpHeaderLength + len(payload) + 2) {
-		t.Error(fmt.Sprintf("Padding packet length check failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload)+2, use))
+		t.Errorf("Padding packet length check failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload)+2, use)
 		return
 	}
 	pay = rp.Payload()
 	if len(pay) != len(payload) {
-		t.Error(fmt.Sprintf("Padding payload length check failed. Expected: %d, got: %d\n", len(payload), len(pay)))
+		t.Errorf("Padding payload length check failed. Expected: %d, got: %d\n", len(payload), len(pay))
 		return
 	}
 	for i, v := range payload {
 		if v != pay[i] {
-			t.Error(fmt.Sprintf("Payload check failed at %i. Expected: %x, got: %x\n", i, payload[i], pay[i]))
+			t.Errorf("Payload check failed at %d. Expected: %x, got: %x\n", i, payload[i], pay[i])
 			return
 		}
 	}
@@ -276,13 +276,13 @@ func rtpPacket(t *testing.T) {
 	// After last CSCR test the packet shall be in initial state, check it.
 	use = rp.InUse()
 	if use != rtpHeaderLength+len(payload) {
-		t.Error(fmt.Sprintf("Packet length check afer CSRC failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use))
+		t.Errorf("Packet length check afer CSRC failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use)
 		return
 	}
 	buf = rp.Buffer()
 	for i, v := range buf[0:use] {
 		if v != initialPacket[i] {
-			t.Error(fmt.Sprintf("Basic header buffer check after CSRC failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i]))
+			t.Errorf("Basic header buffer check after CSRC failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i])
 			return
 		}
 	}
@@ -292,13 +292,13 @@ func rtpPacket(t *testing.T) {
 	// After last EXT test the packet shall be in initial state, check it.
 	use = rp.InUse()
 	if use != rtpHeaderLength+len(payload) {
-		t.Error(fmt.Sprintf("Packet length check afer EXT failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use))
+		t.Errorf("Packet length check afer EXT failed. Expected: %d, got: %d\n", rtpHeaderLength+len(payload), use)
 		return
 	}
 	buf = rp.Buffer()
 	for i, v := range buf[0:use] {
 		if v != initialPacket[i] {
-			t.Error(fmt.Sprintf("Basic header buffer check after CSRC failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i]))
+			t.Errorf("Basic header buffer check after CSRC failed at %d. Expected: %x, got: %x\n", i, initialPacket[i], buf[i])
 			return
 		}
 	}
@@ -311,7 +311,7 @@ func rtpPacket(t *testing.T) {
 	use = rp.InUse()
 	expected := rtpHeaderLength + len(payload) + len(csrc_1)*4 + len(ext_1)
 	if use != expected {
-		t.Error(fmt.Sprintf("Packet length check afer CSRC/EXT failed. Expected: %d, got: %d\n", expected, use))
+		t.Errorf("Packet length check afer CSRC/EXT failed. Expected: %d, got: %d\n", expected, use)
 		return
 	}
 }
@@ -330,7 +330,7 @@ func ntpCheck(t *testing.T) {
 	tm1 := fromNtp(high, low)
 	diff := tm - tm1
 	if diff < -1 || diff > 1 {
-		t.Error(fmt.Sprintf("NTP time conversion check failed. Expected range: +/-1 got: %d\n", diff))
+		t.Errorf("NTP time conversion check failed. Expected range: +/-1 got: %d\n", diff)
 		return
 	}
 }
